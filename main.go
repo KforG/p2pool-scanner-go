@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/KforG/p2pool-scanner-go/config"
 	"github.com/KforG/p2pool-scanner-go/logging"
 )
 
@@ -14,6 +15,13 @@ func main() {
 	logging.SetLogFile(logFile)
 
 	logging.Infof("P2pool-Scannner-Go started up! \n")
+
+	//init config
+	err := config.ReadConfig()
+	if err != nil {
+		panic(err) //We can't continue the program if the config can't be loaded
+	}
+	logging.Infof("Config loaded successfully\n")
 
 	// Hold up program for Go routines and exit gracefully
 	sc := make(chan os.Signal, 1)
