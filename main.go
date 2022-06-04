@@ -7,6 +7,7 @@ import (
 
 	"github.com/KforG/p2pool-scanner-go/config"
 	"github.com/KforG/p2pool-scanner-go/logging"
+	"github.com/KforG/p2pool-scanner-go/scanner"
 )
 
 func main() {
@@ -22,6 +23,10 @@ func main() {
 		panic(err) //We can't continue the program if the config can't be loaded
 	}
 	logging.Infof("Config loaded successfully\n")
+
+	// Start scanning
+	nodes := scanner.Nodes{}
+	go scanner.Scanner(&nodes)
 
 	// Hold up program for Go routines and exit gracefully
 	sc := make(chan os.Signal, 1)
