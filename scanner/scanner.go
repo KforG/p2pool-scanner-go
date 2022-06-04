@@ -9,11 +9,11 @@ import (
 )
 
 type Node struct {
-	IP          string
-	DomainName  string
-	LocalStats  util.NodeStats
-	GlobalStats util.GlobalStats
-	GeoLocation util.Geo
+	IP          string           `json:"ip"`
+	DomainName  string           `json:"domain_name"`
+	LocalStats  util.NodeStats   `json:"node_stats"`
+	GlobalStats util.GlobalStats `json:"global_stats"`
+	GeoLocation util.Geo         `json:"geo_location"`
 }
 
 type Nodes []Node

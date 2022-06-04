@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	"github.com/KforG/p2pool-scanner-go/config"
+	"github.com/KforG/p2pool-scanner-go/handler"
 	"github.com/KforG/p2pool-scanner-go/logging"
 	"github.com/KforG/p2pool-scanner-go/scanner"
 )
@@ -27,6 +28,9 @@ func main() {
 	// Start scanning
 	nodes := scanner.Nodes{}
 	go scanner.Scanner(&nodes)
+
+	// API endpoint(s)
+	go handler.Router(&nodes)
 
 	// Hold up program for Go routines and exit gracefully
 	sc := make(chan os.Signal, 1)

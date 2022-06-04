@@ -24,6 +24,7 @@ type configStruct struct {
 		Check   bool
 		Domains []string `json:"Domains"`
 	} `json:"Domain"`
+	WebPort string `json:"WebPort"`
 }
 
 func ReadConfig() error {
