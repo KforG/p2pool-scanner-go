@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/KforG/p2pool-scanner-go/config"
 	"github.com/KforG/p2pool-scanner-go/logging"
@@ -41,6 +42,10 @@ func Scanner(n *Nodes) {
 			go n.discoverNewNodes(peers)
 
 			_ = util.GetGlobalStats((*n)[i].IP, &(*n)[i].GlobalStats)
+		}
+		if config.Active.RescanTime > 0 {
+			logging.Infof("Updating nodes stats again and rescan for new peers in %d minutes", config.Active.RescanTime)
+			time.Sleep(time.Duration(config.Active.RescanTime) * time.Minute)
 		}
 	}
 }

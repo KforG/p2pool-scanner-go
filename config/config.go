@@ -14,6 +14,7 @@ type configStruct struct {
 	Currency       string   `json:"Currency"`
 	CurrencyCode   string   `json:"CurrencyCode"`
 	Port           string   `json:"Port"`
+	RescanTime     int      `json:"RescanTime"`
 	BootstrapNodes []string `json:"BootstrapNodes"`
 	GeoLocation    struct {
 		API        string `json:"API"`

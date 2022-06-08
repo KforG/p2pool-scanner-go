@@ -5,6 +5,8 @@
     "BootstrapNodes": ["p2proxy.vertcoin.org:9172", "mindcraftblocks.com:9171", "vtc-fl.javerity.com:9171", "p2p-usa.xyz:9171"],
     "Port": "9171",
 
+    "RescanTime": 1,
+
     "GeoLocation": {
         "API": "api.ipstack.com/",
         "AcessKey": "?access_key=aab0f46fb90edd0aab046c",
