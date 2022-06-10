@@ -20,6 +20,7 @@ type Node struct {
 type Nodes []Node
 
 func Scanner(n *Nodes) {
+	go util.GetAllDomainIPs()
 	n.loadBootstrapNodes()
 
 	for {
@@ -44,7 +45,7 @@ func Scanner(n *Nodes) {
 			_ = util.GetGlobalStats((*n)[i].IP, &(*n)[i].GlobalStats)
 		}
 		if config.Active.RescanTime > 0 {
-			logging.Infof("Updating nodes stats again and rescan for new peers in %d minutes", config.Active.RescanTime)
+			logging.Infof("Updating nodes stats again and rescanning for new peers in %d minutes", config.Active.RescanTime)
 			time.Sleep(time.Duration(config.Active.RescanTime) * time.Minute)
 		}
 	}
@@ -65,12 +66,7 @@ func (n *Nodes) loadBootstrapNodes() {
 		}
 
 		bn.DomainName = config.Active.BootstrapNodes[i]
-		err = util.GetIPFromDomain(config.Active.BootstrapNodes[i], &bn.IP)
-		if err != nil {
-			logging.Errorf("Unable to get IP from %s, will not be getting any Geo info about node\n", config.Active.BootstrapNodes[i])
-			*n = append(*n, bn)
-			continue
-		}
+		util.GetIPFromDomain(bn.DomainName, &bn.IP)
 
 		err = util.GetGeoLocation(bn.IP, &bn.GeoLocation)
 		if err != nil {
@@ -102,7 +98,7 @@ func (n *Nodes) discoverNewNodes(peers []string) {
 		}
 
 		an.IP = fmt.Sprintf(peers[i] + ":" + config.Active.Port)
-		util.CheckForDomain(peers[i], &an.DomainName)
+		util.CheckForDomain(an.IP, &an.DomainName)
 
 		if n.checkForDuplicatePeer(an.IP) {
 			*n = append(*n, an)

@@ -13,8 +13,28 @@
         "Parameters": "&fields=country_name,region_name,country_code,location"
     },
 
-    "Domain": {
-        "Domains": []
+    "KnownDomains": {
+        "NodeDomain": [
+        {
+            "DomainName": "vtc-tx.javerity.com:9171"
+        },{
+            "DomainName": "vtc-ca.javerity.com:9171"
+        },{
+            "DomainName": "p2p-usa.xyz:9171"
+        },{
+            "DomainName": "p2p-south.xyz:9171"
+        },{
+            "DomainName": "p2p-spb.xyz:9171"
+        },{
+            "DomainName": "p2p-ekb.xyz:9171"
+        },{
+            "DomainName": "syberia.mine.nu:9171"
+        },{
+            "DomainName": "p2p-usa.xyz:9171"
+        },{
+            "DomainName": "p2p-usa.xyz:9171"
+        }
+    ]
     },
     "WebPort": "80"
 }

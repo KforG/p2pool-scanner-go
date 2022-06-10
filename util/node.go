@@ -2,9 +2,11 @@ package util
 
 import (
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/KforG/p2pool-scanner-go/config"
+	"github.com/KforG/p2pool-scanner-go/logging"
 )
 
 func GetPeers(IP string) (peers []string, err error) {
@@ -97,6 +99,26 @@ func GetGlobalStats(url string, globStats *GlobalStats) error {
 	return nil
 }
 
+// This function does a DNS lookup and assigns the first known IP to the domain name
+func GetIPFromDomain(domainWithPort string, IP *string) {
+	domain := strings.SplitN(domainWithPort, ":", len(domainWithPort))
+	IPs, err := net.LookupIP(domain[0])
+	if err != nil {
+		logging.Errorf("Failed to get IP from %s\n", domain[0], err)
+		*IP = domainWithPort
+		return
+	}
+	*IP = fmt.Sprintf("%s:%s", IPs[0], domain[1]) // If bootstrapnode has other port than default we can't use the config variable
+}
+
+func GetAllDomainIPs() {
+	for i := 0; i < len(config.Active.KnownDomains.NodeDomain); i++ {
+		go func(i int) {
+			GetIPFromDomain(config.Active.KnownDomains.NodeDomain[i].DomainName, &config.Active.KnownDomains.NodeDomain[i].IP)
+		}(i)
+	}
+}
+
 // The purpose of this func is to check if the IP of a node is associated
 // with a known domain name.
 // Current methods of checking databases for domains associated with IP addresses
@@ -113,19 +135,4 @@ func CheckForDomain(IP string, domain *string) {
 		}
 	}
 	*domain = IP
-}
-
-func BootstrapCheckForIP(domain string, IP *string) {
-	if !config.Active.KnownDomains.Check {
-		*IP = domain
-		return // No knownNodes available
-	}
-
-	for i := 0; i < len(config.Active.KnownDomains.NodeDomain); i++ {
-		if domain == config.Active.KnownDomains.NodeDomain[i].DomainName {
-			*IP = config.Active.KnownDomains.NodeDomain[i].IP
-			return
-		}
-	}
-	*IP = domain
 }

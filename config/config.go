@@ -13,18 +13,21 @@ var Active configStruct
 type configStruct struct {
 	Currency       string   `json:"Currency"`
 	CurrencyCode   string   `json:"CurrencyCode"`
+	BootstrapNodes []string `json:"BootstrapNodes"`
 	Port           string   `json:"Port"`
 	RescanTime     int      `json:"RescanTime"`
-	BootstrapNodes []string `json:"BootstrapNodes"`
 	GeoLocation    struct {
 		API        string `json:"API"`
 		AcessKey   string `json:"AcessKey"`
 		Parameters string `json:"Parameters"`
 	} `json:"GeoLocation"`
-	Domain struct {
-		Check   bool
-		Domains []string `json:"Domains"`
-	} `json:"Domain"`
+	KnownDomains struct {
+		Check      bool
+		NodeDomain []struct {
+			IP         string
+			DomainName string `json:"DomainName"`
+		} `json:"NodeDomain"`
+	} `json:"KnownDomains"`
 	WebPort string `json:"WebPort"`
 }
 
@@ -46,10 +49,10 @@ func ReadConfig() error {
 		return err
 	}
 
-	if len(Active.Domain.Domains) > 0 {
-		Active.Domain.Check = true
+	if len(Active.KnownDomains.NodeDomain) > 0 {
+		Active.KnownDomains.Check = true
 	} else {
-		Active.Domain.Check = false
+		Active.KnownDomains.Check = false
 	}
 
 	return nil
