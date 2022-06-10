@@ -10,14 +10,13 @@ import (
 	"github.com/KforG/p2pool-scanner-go/scanner"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 )
 
 func Router(n *scanner.Nodes) {
 	logging.Infof("Setting up router..\n")
 
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
+	//r.Use(middleware.Logger) // Useful for debugging purposes. Doesn't need to clog log in production.
 
 	r.Get("/nodes", getNodes(n))
 

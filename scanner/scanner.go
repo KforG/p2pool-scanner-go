@@ -53,7 +53,6 @@ func Scanner(n *Nodes) {
 func (n *Nodes) loadBootstrapNodes() {
 	logging.Infof("Loading bootstrap nodes..")
 	for i := 0; i < len(config.Active.BootstrapNodes); i++ {
-		logging.Infof("")
 		var bn Node
 		err := util.GetLocalStats(config.Active.BootstrapNodes[i], &bn.LocalStats)
 		if err != nil {

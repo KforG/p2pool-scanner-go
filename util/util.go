@@ -11,7 +11,6 @@ import (
 func GetJson(url string, target interface{}) error {
 	resp, err := http.Get(fmt.Sprintf("http://%s", url))
 	if err != nil {
-		logging.Errorf("Error fetching data from %s\n", url)
 		return err
 	}
 	defer resp.Body.Close()

@@ -24,12 +24,10 @@ type Geo struct {
 //This function queries a iplookup tool for the geolocation of the node
 //It does not take in a URL but an IP address
 func GetGeoLocation(nodeIPPort string, jsonPayload *Geo) error {
-	logging.Infof("Fetching Geo location of %s\n", nodeIPPort)
 	s := strings.SplitN(nodeIPPort, ":", len(nodeIPPort))
 	nodeIP := s[0]
 	err := GetJson(fmt.Sprintf(config.Active.GeoLocation.API+nodeIP+config.Active.GeoLocation.AcessKey+config.Active.GeoLocation.Parameters), &jsonPayload)
 	if err != nil {
-		logging.Errorf("Error fetching geo location of %s\n", nodeIP)
 		return err
 	}
 	return err

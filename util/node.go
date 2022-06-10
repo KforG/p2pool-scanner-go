@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/KforG/p2pool-scanner-go/config"
-	"github.com/KforG/p2pool-scanner-go/logging"
 )
 
 func GetPeers(IP string) (peers []string, err error) {
@@ -74,10 +73,8 @@ type MyHashRatesInLastHour struct {
 }
 
 func GetLocalStats(IP string, node *NodeStats) error {
-	logging.Infof("Fetching LocalStats from %s\n", IP)
 	err := GetJson(fmt.Sprintf("%s/local_stats", IP), node)
 	if err != nil {
-		logging.Errorf("Error fetching LocalStats from %s, assuming non reachable\n", IP)
 		return err
 	}
 	return nil
@@ -93,10 +90,8 @@ type GlobalStats struct {
 }
 
 func GetGlobalStats(url string, globStats *GlobalStats) error {
-	logging.Infof("Fetching GlobalStats from %s\n", url)
 	err := GetJson(fmt.Sprintf("%s/global_stats", url), globStats)
 	if err != nil {
-		logging.Errorf("Error: Fetching GlobalStats from %s failed!\n", url)
 		return err
 	}
 	return nil
@@ -106,14 +101,31 @@ func GetGlobalStats(url string, globStats *GlobalStats) error {
 // with a known domain name.
 // Current methods of checking databases for domains associated with IP addresses
 // often return weird ISP strings.
-func CheckForDomain(IP string, d *string) {
-	if !config.Active.Domain.Check {
+// So we do some manual lookup in config
+func CheckForDomain(IP string, domain *string) {
+	if !config.Active.KnownDomains.Check {
 		return
 	}
-	// func is not done, need to figure out how to best check if IP is associated with any known domains names
-	for i := 0; i < len(config.Active.Domain.Domains); i++ {
-		if IP == config.Active.Domain.Domains[i] {
-			*d = config.Active.Domain.Domains[i]
+	for i := 0; i < len(config.Active.KnownDomains.NodeDomain); i++ {
+		if IP == config.Active.KnownDomains.NodeDomain[i].IP {
+			*domain = config.Active.KnownDomains.NodeDomain[i].DomainName
+			return
 		}
 	}
+	*domain = IP
+}
+
+func BootstrapCheckForIP(domain string, IP *string) {
+	if !config.Active.KnownDomains.Check {
+		*IP = domain
+		return // No knownNodes available
+	}
+
+	for i := 0; i < len(config.Active.KnownDomains.NodeDomain); i++ {
+		if domain == config.Active.KnownDomains.NodeDomain[i].DomainName {
+			*IP = config.Active.KnownDomains.NodeDomain[i].IP
+			return
+		}
+	}
+	*IP = domain
 }
