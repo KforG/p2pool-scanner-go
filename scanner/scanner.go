@@ -5,28 +5,30 @@ import (
 	"time"
 
 	"github.com/KforG/p2pool-scanner-go/config"
+	"github.com/KforG/p2pool-scanner-go/geo"
 	"github.com/KforG/p2pool-scanner-go/logging"
+	"github.com/KforG/p2pool-scanner-go/node"
 	"github.com/KforG/p2pool-scanner-go/util"
 )
 
 type Node struct {
 	IP          string           `json:"ip"`
 	DomainName  string           `json:"domain_name"`
-	LocalStats  util.NodeStats   `json:"node_stats"`
-	GlobalStats util.GlobalStats `json:"global_stats"`
-	GeoLocation util.Geo         `json:"geo_location"`
+	LocalStats  node.NodeStats   `json:"node_stats"`
+	GlobalStats node.GlobalStats `json:"global_stats"`
+	GeoLocation geo.Geo          `json:"geo_location"`
 }
 
 type Nodes []Node
 
 func Scanner(n *Nodes) {
-	go util.GetAllDomainIPs()
+	go node.GetAllDomainIPs()
 	n.loadBootstrapNodes()
 
 	for {
 		logging.Infof("Scanning P2pool network for public P2Pool nodes...\n")
 		for i := 0; i < len(*n); i++ {
-			err := util.GetLocalStats((*n)[i].IP, &(*n)[i].LocalStats)
+			err := node.GetLocalStats((*n)[i].IP, &(*n)[i].LocalStats)
 			if err != nil {
 				logging.Infof("%s, did not return updated node state, might be unreachable. Removing from node list.\n", (*n)[i].IP)
 				// bring element to remove at the end if its not there yet
@@ -39,10 +41,10 @@ func Scanner(n *Nodes) {
 				continue
 			}
 
-			peers, _ := util.GetPeers((*n)[i].IP)
+			peers, _ := node.GetPeers((*n)[i].IP)
 			go n.discoverNewNodes(peers)
 
-			_ = util.GetGlobalStats((*n)[i].IP, &(*n)[i].GlobalStats)
+			_ = node.GetGlobalStats((*n)[i].IP, &(*n)[i].GlobalStats)
 		}
 		if config.Active.RescanTime > 0 {
 			logging.Infof("Updating nodes stats again and rescanning for new peers in %d minutes", config.Active.RescanTime)
@@ -55,20 +57,20 @@ func (n *Nodes) loadBootstrapNodes() {
 	logging.Infof("Loading bootstrap nodes..")
 	for i := 0; i < len(config.Active.BootstrapNodes); i++ {
 		var bn Node
-		err := util.GetLocalStats(config.Active.BootstrapNodes[i], &bn.LocalStats)
+		err := node.GetLocalStats(config.Active.BootstrapNodes[i], &bn.LocalStats)
 		if err != nil {
 			logging.Infof("%s couldn't be reached, consider updating bootstrap nodes\n", config.Active.BootstrapNodes[i])
 			continue
 		}
-		err = util.GetGlobalStats(config.Active.BootstrapNodes[i], &bn.GlobalStats)
+		err = node.GetGlobalStats(config.Active.BootstrapNodes[i], &bn.GlobalStats)
 		if err != nil {
 			logging.Errorf("Unable to fetch GlobalStats from %s\n", config.Active.BootstrapNodes[i])
 		}
 
 		bn.DomainName = config.Active.BootstrapNodes[i]
-		util.GetIPFromDomain(bn.DomainName, &bn.IP)
+		node.GetIPFromDomain(bn.DomainName, &bn.IP)
 
-		err = util.GetGeoLocation(bn.IP, &bn.GeoLocation)
+		err = geo.GetGeoLocation(bn.IP, &bn.GeoLocation)
 		if err != nil {
 			logging.Errorf("Unable to fetch geolocation of %s:%s\n", bn.DomainName, bn.IP)
 		}
@@ -81,24 +83,24 @@ func (n *Nodes) discoverNewNodes(peers []string) {
 	for i := 0; i < len(peers); i++ {
 		var an Node
 
-		err := util.GetLocalStats(fmt.Sprintf(peers[i]+":"+config.Active.Port), &an.LocalStats)
+		err := node.GetLocalStats(fmt.Sprintf(peers[i]+":"+config.Active.Port), &an.LocalStats)
 		if err != nil {
 			// If the peer doesn't respond to this request, it is assumed inactive/private
 			continue
 		}
 
-		err = util.GetGlobalStats(fmt.Sprintf(peers[i]+":"+config.Active.Port), &an.GlobalStats)
+		err = node.GetGlobalStats(fmt.Sprintf(peers[i]+":"+config.Active.Port), &an.GlobalStats)
 		if err != nil {
 			logging.Errorf("Failed to fetch Global stats from %s, node seems to be alive\n", fmt.Sprintf(peers[i]+":"+config.Active.Port), err)
 		}
 
-		err = util.GetGeoLocation(peers[i], &an.GeoLocation)
+		err = geo.GetGeoLocation(peers[i], &an.GeoLocation)
 		if err != nil {
 			logging.Errorf("Failed to get Geolocation of %s\n", peers[i])
 		}
 
 		an.IP = fmt.Sprintf(peers[i] + ":" + config.Active.Port)
-		util.CheckForDomain(an.IP, &an.DomainName)
+		node.CheckForDomain(an.IP, &an.DomainName)
 
 		if n.checkForDuplicatePeer(an.IP) {
 			*n = append(*n, an)

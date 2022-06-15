@@ -1,4 +1,4 @@
-package util
+package geo
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/KforG/p2pool-scanner-go/config"
 	"github.com/KforG/p2pool-scanner-go/logging"
+	"github.com/KforG/p2pool-scanner-go/util"
 )
 
 type Geo struct {
@@ -26,7 +27,7 @@ type Geo struct {
 func GetGeoLocation(nodeIPPort string, jsonPayload *Geo) error {
 	s := strings.SplitN(nodeIPPort, ":", len(nodeIPPort))
 	nodeIP := s[0]
-	err := GetJson(fmt.Sprintf(config.Active.GeoLocation.API+nodeIP+config.Active.GeoLocation.AcessKey+config.Active.GeoLocation.Parameters), &jsonPayload)
+	err := util.GetJson(fmt.Sprintf(config.Active.GeoLocation.API+nodeIP+config.Active.GeoLocation.AcessKey+config.Active.GeoLocation.Parameters), &jsonPayload)
 	if err != nil {
 		return err
 	}

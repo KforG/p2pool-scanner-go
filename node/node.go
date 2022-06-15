@@ -1,4 +1,4 @@
-package util
+package node
 
 import (
 	"fmt"
@@ -7,11 +7,12 @@ import (
 
 	"github.com/KforG/p2pool-scanner-go/config"
 	"github.com/KforG/p2pool-scanner-go/logging"
+	"github.com/KforG/p2pool-scanner-go/util"
 )
 
 func GetPeers(IP string) (peers []string, err error) {
 	var jsonPayload string
-	err = GetJson(fmt.Sprintf("%s/peer_addresses", IP), &jsonPayload)
+	err = util.GetJson(fmt.Sprintf("%s/peer_addresses", IP), &jsonPayload)
 	if err != nil {
 		return peers, err
 	}
@@ -75,7 +76,7 @@ type MyHashRatesInLastHour struct {
 }
 
 func GetLocalStats(IP string, node *NodeStats) error {
-	err := GetJson(fmt.Sprintf("%s/local_stats", IP), node)
+	err := util.GetJson(fmt.Sprintf("%s/local_stats", IP), node)
 	if err != nil {
 		return err
 	}
@@ -92,7 +93,7 @@ type GlobalStats struct {
 }
 
 func GetGlobalStats(url string, globStats *GlobalStats) error {
-	err := GetJson(fmt.Sprintf("%s/global_stats", url), globStats)
+	err := util.GetJson(fmt.Sprintf("%s/global_stats", url), globStats)
 	if err != nil {
 		return err
 	}
